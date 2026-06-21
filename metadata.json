@@ -1,0 +1,8 @@
+{
+  "name": "Remix: ASSIGAME",
+  "description": "multi-tenant marketplace platform spanning public buyers and authenticated local artisans/sellers with instant catalogs, messaging, and orders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

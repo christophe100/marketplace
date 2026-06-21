@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-shopera-burgundy: #4A1118;
+  --color-shopera-burgundy-light: #60101B;
+  --color-shopera-tan: #F5F2ED;
+  --color-shopera-cream: #FCF9F8;
+  --color-shopera-gold: #C5A059;
+  --color-shopera-dark: #1C1B1B;
+  --color-shopera-gray: #717171;
+  --font-sans: "Roboto", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  --shadow-inner: none;
+  --shadow: none;
+}
+
+/* Force flat visual hierarchy requested by user */
+*, ::before, ::after {
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-shadow-colored: 0 0 #0000 !important;
+  box-shadow: none !important;
+}
+
+.drop-shadow-lg, .drop-shadow-xl, .drop-shadow-2xl, .drop-shadow, .shadow-2xl, .shadow-xl, .shadow-lg, .shadow-md, .shadow-sm, .shadow {
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+body {
+  background-color: #FCF9F8;
+  color: #1C1B1B;
+  font-family: var(--font-sans);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
