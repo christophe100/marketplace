@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   LayoutDashboard,
   Package,
@@ -81,6 +81,7 @@ export default function SellerPerspective({
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [newProdName, setNewProdName] = useState('');
   const [newProdCategory, setNewProdCategory] = useState('Sacs');
+  const [customCategory, setCustomCategory] = useState('');
   const [newProdBrand, setNewProdBrand] = useState('Heritage Luxe');
   const [newProdPrice, setNewProdPrice] = useState<number>(85000);
   const [newProdOriginalPrice, setNewProdOriginalPrice] = useState<number>(100000);
@@ -88,6 +89,10 @@ export default function SellerPerspective({
   const [newProdDesc, setNewProdDesc] = useState('');
   const [newProdImage, setNewProdImage] = useState('https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop&q=80');
   const [newProdColorStr, setNewProdColorStr] = useState('#4A1118, #E8E1D5, #1C1B1B');
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+
+  // File input explorer reference
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Drag and drop local visual support
   const [dragActive, setDragActive] = useState(false);
@@ -128,15 +133,18 @@ export default function SellerPerspective({
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const droppedFile = e.dataTransfer.files[0];
-      // Simulate successful upload and swap with a premium product Unsplash image
-      const categoryImages: Record<string, string> = {
-        Sacs: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500&auto=format&fit=crop&q=80',
-        Meubles: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&auto=format&fit=crop&q=80',
-        Montres: 'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?w=500&auto=format&fit=crop&q=80',
-        Chaussures: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&auto=format&fit=crop&q=80',
-      };
-      setNewProdImage(categoryImages[newProdCategory] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80');
-      alert(`Fichier "${droppedFile.name}" pré-visualisé avec succès sous l'algorithme ${(logoConfig?.text || 'ASSIGAME')} Optima !`);
+      const objectUrl = URL.createObjectURL(droppedFile);
+      setNewProdImage(objectUrl);
+      setSelectedFileName(droppedFile.name);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const objectUrl = URL.createObjectURL(file);
+      setNewProdImage(objectUrl);
+      setSelectedFileName(file.name);
     }
   };
 
@@ -155,10 +163,11 @@ export default function SellerPerspective({
     if (!newProdName) return;
 
     const colors = newProdColorStr.split(',').map((c) => c.trim()).filter((c) => c.startsWith('#'));
+    const finalCategory = newProdCategory === 'Autres' ? (customCategory.trim() || 'Autres') : newProdCategory;
 
     onAddProduct({
       name: newProdName,
-      category: newProdCategory,
+      category: finalCategory,
       brand: newProdBrand,
       price: newProdPrice,
       originalPrice: newProdOriginalPrice || undefined,
@@ -177,6 +186,15 @@ export default function SellerPerspective({
 
     // Reset Form fields
     setNewProdName('');
+    setNewProdDesc('');
+    setNewProdBrand('Heritage Luxe');
+    setNewProdCategory('Sacs');
+    setCustomCategory('');
+    setNewProdPrice(85000);
+    setNewProdOriginalPrice(100000);
+    setNewProdStock(20);
+    setNewProdImage('https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop&q=80');
+    setSelectedFileName(null);
     setIsAddingProduct(false);
 
     alert(`Votre article "${newProdName}" a été publié avec succès de manière instantanée ! Il est dorénavant visible et disponible pour tous les acheteurs du site public.`);
@@ -453,7 +471,32 @@ export default function SellerPerspective({
                         <option value="Chaussures">Chaussures</option>
                         <option value="Lunettes">Lunettes</option>
                         <option value="Parfums">Parfums</option>
+                        <option value="Électroniques">Électroniques</option>
+                        <option value="Bijoux & Joyaux">Bijoux & Joyaux</option>
+                        <option value="Vêtements Mode">Vêtements Mode</option>
+                        <option value="Art & Sculpture">Art & Sculpture</option>
+                        <option value="Tissus & Pagnes">Tissus & Pagnes</option>
+                        <option value="Beauté & Cosmetique">Beauté & Cosmetique</option>
+                        <option value="Épices & Gastronomie">Épices & Gastronomie</option>
+                        <option value="Maroquinerie">Maroquinerie</option>
+                        <option value="Autres">Autres (Saisir manuellement)</option>
                       </select>
+
+                      {newProdCategory === 'Autres' && (
+                        <div className="mt-3 animate-fade-in">
+                          <label className="block text-[10px] font-extrabold uppercase text-shopera-burgundy mb-1 flex items-center gap-1.5">
+                            <span>Saisir votre catégorie personnalisée *</span>
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Saisissez le nom de la catégorie (ex: Tapisserie, Vins Fins, Artisanat...)"
+                            value={customCategory}
+                            onChange={(e) => setCustomCategory(e.target.value)}
+                            className="w-full bg-rose-50/20 border border-shopera-burgundy/40 p-2.5 rounded focus:ring-1 focus:ring-shopera-burgundy bg-white font-medium text-xs placeholder:text-gray-400"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -526,26 +569,41 @@ export default function SellerPerspective({
                     />
                   </div>
 
-                  {/* Drag-and-drop Visual support area */}
+                  {/* Drag-and-drop Visual support area with actual File Browser link */}
                   <div>
                     <label className="block text-[10px] font-extrabold uppercase text-shopera-gray mb-1.5">Image de présentation</label>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      onChange={handleFileChange} 
+                      accept="image/*" 
+                      className="hidden" 
+                    />
                     <div
                       onDragEnter={handleDrag}
                       onDragOver={handleDrag}
                       onDragLeave={handleDrag}
                       onDrop={handleDrop}
+                      onClick={() => fileInputRef.current?.click()}
                       className={`border-2 border-dashed rounded-xl p-6 text-center transition cursor-pointer flex flex-col items-center justify-center ${
                         dragActive ? 'border-shopera-burgundy bg-shopera-burgundy/5' : 'border-gray-200 hover:border-shopera-burgundy'
                       }`}
                     >
                       <Upload className="w-8 h-8 text-shopera-gray mb-2 animate-bounce" />
                       <span className="font-bold text-xs block text-shopera-dark">Glissez-déposez le fichier image</span>
-                      <span className="text-[10px] text-shopera-gray mt-0.5">ou cliquez pour parcourir les dossiers (simulation active)</span>
+                      <span className="text-[10px] text-shopera-gray mt-0.5">ou cliquez sur cette zone pour explorer et sélectionner une image</span>
                       
                       {newProdImage && (
-                        <div className="mt-4 flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded text-[10px] text-shopera-gray">
-                          <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Image chargée avec succès.</span>
+                        <div className="mt-4 flex flex-col items-center gap-2">
+                          <img 
+                            src={newProdImage} 
+                            alt="Aperçu du produit" 
+                            className="w-24 h-24 object-cover rounded-lg border border-gray-200 shadow-xs" 
+                          />
+                          <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1 rounded text-[10px] text-shopera-gray">
+                            <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>{selectedFileName ? `Fichier : ${selectedFileName}` : 'Image active de démonstration'}</span>
+                          </div>
                         </div>
                       )}
                     </div>

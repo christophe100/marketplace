@@ -1,6 +1,9 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 import React, { useState, useMemo } from 'react';
-import ShinyText from './ShinyText';
 import {
   Search,
   ShoppingBag,
@@ -82,7 +85,23 @@ const CATEGORY_ICONS: Record<string, string> = {
   Parfums: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=100&auto=format&fit=crop&q=80',
 };
 
-const CATEGORIES = ['Tout', 'Meubles', 'Montres', 'Sacs', 'Chaussures', 'Lunettes', 'Parfums', 'Électroniques'];
+const CATEGORIES = [
+  'Tout',
+  'Meubles',
+  'Montres',
+  'Sacs',
+  'Chaussures',
+  'Lunettes',
+  'Parfums',
+  'Électroniques',
+  'Bijoux & Joyaux',
+  'Vêtements Mode',
+  'Art & Sculpture',
+  'Tissus & Pagnes',
+  'Beauté & Cosmetique',
+  'Épices & Gastronomie',
+  'Maroquinerie'
+];
 
 const LOGO_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   ShoppingBag,
@@ -131,6 +150,17 @@ export default function BuyerPerspective({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isCustomizerOpen, setIsCustomizerOpen] = useState<boolean>(false);
+
+  // Dynamic categories list incorporating custom ones published by sellers
+  const dynamicCategories = useMemo(() => {
+    const list = [...CATEGORIES];
+    products.forEach((p) => {
+      if (p.category && !list.includes(p.category)) {
+        list.push(p.category);
+      }
+    });
+    return list;
+  }, [products]);
 
   // Checkout Sim Info
   const [checkoutName, setCheckoutName] = useState('');
@@ -607,12 +637,11 @@ export default function BuyerPerspective({
                         Nouvelle Collection Héritage
                       </span>
                     </div>
-                   
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-shopera-dark tracking-tight leading-tight mb- text-color-dark">
-                     <ShinyText
-  text=" Découvrez Les Meilleurs Produits" speed={2} delay={0} color="#b5b5b5" shineColor="#ffffff" spread={120} direction="left" yoyo={false} pauseOnHover={false} disabled={false}
-/>          
+                    
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-shopera-dark tracking-tight leading-tight mb-4">
+                      Découvrez Les Meilleurs Produits
                     </h1>
+                    
                     <p className="text-sm md:text-base text-shopera-gray leading-relaxed mb-8">
                       Trouvez des pièces d&apos;art et de design exclusives sélectionnées auprès de créateurs africains renommés. Faites vos achats en toute confiance et bénéficiez de garanties haut de gamme.
                     </p>
@@ -845,7 +874,7 @@ export default function BuyerPerspective({
                       <Filter className="w-4 h-4 text-shopera-gray" />
                     </h3>
                     <div className="flex flex-col gap-1.5">
-                      {CATEGORIES.map((cat) => {
+                      {dynamicCategories.map((cat) => {
                         const isSelected = (cat === 'Tout' && !categoryFilter) || (categoryFilter === cat);
                         return (
                           <button
