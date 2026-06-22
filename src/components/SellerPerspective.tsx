@@ -30,6 +30,7 @@ import {
   Heart,
 } from 'lucide-react';
 import { Product, Order, Conversation, SellerProfile, LogoConfig } from '../types';
+import AssigameLogo from './AssigameLogo';
 
 interface SellerPerspectiveProps {
   products: Product[];
@@ -188,28 +189,19 @@ export default function SellerPerspective({
       <aside className="w-full lg:w-64 bg-shopera-dark lg:min-h-screen text-gray-300 p-6 flex flex-col justify-between border-r border-[#2C2C2C]">
         <div>
           {/* Brand/Role banner */}
-          <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-800">
-            {logoConfig?.logoType === 'image' && logoConfig?.imageUrl ? (
-              <img src={logoConfig.imageUrl} alt="Logo" className="w-8 h-8 object-contain rounded" />
-            ) : (
-              <div 
-                style={{ backgroundColor: logoConfig?.bgColor || '#C5A059' }} 
-                className="w-8 h-8 rounded flex items-center justify-center text-white font-bold text-sm"
-              >
-                {React.createElement(
-                  LOGO_ICONS[logoConfig?.iconName || 'ShoppingBag'] || ShoppingBag,
-                  { className: "w-4.5 h-4.5 text-white" }
-                )}
-              </div>
-            )}
-            <div>
-              <span className="block font-extrabold text-[11px] tracking-widest text-white uppercase leading-tight">
-                {logoConfig?.text || 'ASSIGAME'} ESPACE
-              </span>
-              <span className="text-[10px] text-shopera-gold font-mono uppercase tracking-wider block">
-                {activeSeller.storeName}
+          <div className="flex flex-col gap-1 mb-8 pb-4 border-b border-gray-800">
+            <div className="flex items-center gap-1">
+              <AssigameLogo 
+                className="text-lg text-white" 
+                color="#FFFFFF"
+              />
+              <span className="text-[10px] bg-shopera-burgundy text-shopera-gold font-bold px-1.5 py-0.5 rounded ml-2 uppercase tracking-widest scale-90">
+                PRO
               </span>
             </div>
+            <span className="text-[10px] text-shopera-gold font-mono uppercase tracking-wider block mt-1">
+              {activeSeller.storeName}
+            </span>
           </div>
 
           <nav className="space-y-1.5 text-xs font-semibold">

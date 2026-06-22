@@ -1,9 +1,6 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useMemo } from 'react';
+import ShinyText from './ShinyText';
 import {
   Search,
   ShoppingBag,
@@ -71,7 +68,7 @@ interface BuyerPerspectiveProps {
   searchQuery: string;
   onSetSearchQuery: (query: string) => void;
   loggedSeller: any;
-  onEnterSellerSpace: () => void;
+  onEnterSellerSpace: (initialMode?: 'login' | 'signup') => void;
   logoConfig?: LogoConfig;
   onUpdateLogoConfig?: (config: LogoConfig) => void;
 }
@@ -272,6 +269,7 @@ export default function BuyerPerspective({
         cart={cart}
         setIsCartOpen={setIsCartOpen}
         logoConfig={logoConfig}
+        onEnterSellerSpace={onEnterSellerSpace}
       />
 
       {/* RENDER ACTIVE SCREEN CONTENT */}
@@ -609,11 +607,12 @@ export default function BuyerPerspective({
                         Nouvelle Collection Héritage
                       </span>
                     </div>
-                    
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-shopera-dark tracking-tight leading-tight mb-4">
-                      Découvrez Les Meilleurs Produits
+                   
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-shopera-dark tracking-tight leading-tight mb- text-color-dark">
+                     <ShinyText
+  text=" Découvrez Les Meilleurs Produits" speed={2} delay={0} color="#b5b5b5" shineColor="#ffffff" spread={120} direction="left" yoyo={false} pauseOnHover={false} disabled={false}
+/>          
                     </h1>
-                    
                     <p className="text-sm md:text-base text-shopera-gray leading-relaxed mb-8">
                       Trouvez des pièces d&apos;art et de design exclusives sélectionnées auprès de créateurs africains renommés. Faites vos achats en toute confiance et bénéficiez de garanties haut de gamme.
                     </p>

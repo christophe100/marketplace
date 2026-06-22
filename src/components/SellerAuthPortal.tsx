@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShoppingBag, 
   Sparkles, 
@@ -34,6 +34,7 @@ interface SellerAuthPortalProps {
   onRegister: (newSeller: Omit<SellerProfile, 'id' | 'joinDate' | 'status'>) => void;
   onCancel: () => void;
   logoConfig?: LogoConfig;
+  initialMode?: 'login' | 'signup';
 }
 
 const LOGO_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -53,8 +54,15 @@ export default function SellerAuthPortal({
   onRegister,
   onCancel,
   logoConfig,
+  initialMode,
 }: SellerAuthPortalProps) {
-  const [activeMode, setActiveMode] = useState<'login' | 'signup'>('login');
+  const [activeMode, setActiveMode] = useState<'login' | 'signup'>(initialMode || 'login');
+
+  useEffect(() => {
+    if (initialMode) {
+      setActiveMode(initialMode);
+    }
+  }, [initialMode]);
   
   // Custom states matching "COSMOS" design
   const [showPassword, setShowPassword] = useState(false);

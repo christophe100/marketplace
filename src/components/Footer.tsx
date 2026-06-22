@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { LogoConfig } from '../types';
+import AssigameLogo from './AssigameLogo';
 
 // Icons used inside the logo/footer
 import {
@@ -44,31 +45,16 @@ export default function Footer({
         {/* Col 1 Info */}
         <div>
           <div className="flex items-center gap-2 mb-4">
-            {logoConfig?.logoType === 'image' && logoConfig?.imageUrl ? (
-              <img src={logoConfig.imageUrl} alt="Logo" className="h-8 w-auto object-contain" />
-            ) : (
-              <div 
-                style={{ backgroundColor: logoConfig?.bgColor || '#4A1118' }} 
-                className={`w-8 h-8 flex items-center justify-center ${logoConfig?.borderRadius || 'rounded'}`}
-              >
-                {React.createElement(
-                  LOGO_ICONS[logoConfig?.iconName || 'ShoppingBag'] || ShoppingBag,
-                  { className: "w-4.5 h-4.5 text-white" }
-                )}
-              </div>
-            )}
-            <span 
-              style={{ color: logoConfig?.textColor || '#4A1118' }}
-              className="font-extrabold text-sm tracking-tight"
-            >
-              {logoConfig?.text || 'ASSIGAME'}
-            </span>
+            <AssigameLogo 
+              className="text-xl"
+              color={logoConfig?.textColor || '#4A1118'}
+            />
           </div>
           <p className="leading-relaxed mb-4 max-w-xs">
             Votre destination de prestige pour le shopping panafricain. L&apos;alliance suprême entre tradition, design haut de gamme et efficacité technologique de pointe.
           </p>
           <div className="text-[10px] text-shopera-dark font-mono">
-            © 2026 {logoConfig?.text || 'ASSIGAME'}. Tous droits réservés.
+            © 2026 ASSIGAME. Tous droits réservés.
           </div>
         </div>
 

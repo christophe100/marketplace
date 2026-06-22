@@ -1,6 +1,7 @@
 import React from 'react';
 import { Menu, Search, Heart, ShoppingBag } from 'lucide-react';
 import { LogoConfig, CartItem } from '../types';
+import AssigameLogo from './AssigameLogo';
 
 // Let's import LOGO_ICONS or define it here
 import {
@@ -37,6 +38,7 @@ interface NavbarProps {
   cart: CartItem[];
   setIsCartOpen: (val: boolean) => void;
   logoConfig?: LogoConfig;
+  onEnterSellerSpace?: (initialMode?: 'login' | 'signup') => void;
 }
 
 export default function Navbar({
@@ -52,6 +54,7 @@ export default function Navbar({
   cart,
   setIsCartOpen,
   logoConfig,
+  onEnterSellerSpace,
 }: NavbarProps) {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
@@ -67,31 +70,12 @@ export default function Navbar({
           </button>
           <div
             onClick={() => { onChangeTab('home'); onSelectProduct(null); }}
-            className="flex items-center gap-2.5 cursor-pointer group"
+            className="flex items-center gap-2.5 cursor-pointer group py-1"
           >
-            {logoConfig?.logoType === 'image' && logoConfig?.imageUrl ? (
-              <img 
-                src={logoConfig.imageUrl} 
-                alt={logoConfig.text} 
-                className="h-9 w-auto object-contain transition-transform group-hover:scale-105" 
-              />
-            ) : (
-              <div 
-                style={{ backgroundColor: logoConfig?.bgColor || '#4A1118' }} 
-                className={`w-9 h-9 flex items-center justify-center transition-transform group-hover:scale-105 ${logoConfig?.borderRadius || 'rounded-lg'} text-white`}
-              >
-                {React.createElement(
-                  LOGO_ICONS[logoConfig?.iconName || 'ShoppingBag'] || ShoppingBag,
-                  { className: "w-5 h-5 text-white" }
-                )}
-              </div>
-            )}
-            <span 
-              style={{ color: logoConfig?.textColor || '#4A1118' }}
-              className="text-2xl font-extrabold tracking-tight transition-opacity"
-            >
-              {logoConfig?.text || 'ASSIGAME'}
-            </span>
+            <AssigameLogo 
+              className="text-2xl transition-transform duration-150 group-hover:scale-[1.02]"
+              color={logoConfig?.textColor || '#4A1118'}
+            />
           </div>
         </div>
 
@@ -173,6 +157,22 @@ export default function Navbar({
               </span>
             )}
           </button>
+
+          {/* Seller Action Buttons */}
+          <div className="hidden md:flex items-center gap-2 pl-2 border-l border-gray-150">
+            <button
+              onClick={() => onEnterSellerSpace?.('login')}
+              className="inline-flex items-center justify-center bg-[#4A1118] hover:bg-[#5C161E] text-white text-[10px] font-extrabold px-4 py-2.5 uppercase tracking-wider transition-colors duration-150 rounded-[30px] shadow-xs cursor-pointer"
+            >
+              Se Connecter Vendeur
+            </button>
+            <button
+              onClick={() => onEnterSellerSpace?.('signup')}
+              className="inline-flex items-center justify-center border border-[#4A1118] text-[#4A1118] bg-white hover:bg-red-50/50 text-[10px] font-extrabold px-4 py-2 md:py-2.5 uppercase tracking-wider transition-colors duration-150 rounded-[30px] cursor-pointer"
+            >
+              Inscription Vendeur
+            </button>
+          </div>
         </div>
       </div>
 
@@ -220,6 +220,22 @@ export default function Navbar({
           >
             Messages
           </button>
+          
+          {/* Mobile Seller Buttons */}
+          <div className="border-t border-gray-150 pt-3 mt-1 flex flex-col gap-2">
+            <button
+              onClick={() => { onEnterSellerSpace?.('login'); setIsMobileMenuOpen(false); }}
+              className="bg-[#4A1118] text-white text-xs font-bold py-2.5 px-4 uppercase tracking-wider text-center rounded-[30px] shadow-xs cursor-pointer"
+            >
+              Se Connecter Vendeur
+            </button>
+            <button
+              onClick={() => { onEnterSellerSpace?.('signup'); setIsMobileMenuOpen(false); }}
+              className="border border-[#4A1118] text-[#4A1118] bg-white text-xs font-bold py-2 px-4 uppercase tracking-wider text-center rounded-[30px] cursor-pointer"
+            >
+              Inscription Vendeur
+            </button>
+          </div>
         </div>
       )}
     </header>

@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -70,6 +66,7 @@ export default function App() {
 
   // Current active view: 'buyer' (the public site) or 'seller' (the authenticated panel) or 'seller_auth' (the login/signup screen)
   const [currentPerspective, setCurrentPerspective] = useState<'buyer' | 'seller' | 'seller_auth'>('buyer');
+  const [sellerAuthInitialMode, setSellerAuthInitialMode] = useState<'login' | 'signup'>('login');
 
   // Unified buyer navigation states
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
@@ -326,11 +323,12 @@ export default function App() {
   };
 
   // GATEWAY HANDLERS FOR ENTERING/LEAVING SELLER SPACE
-  const handleEnterSellerSpace = () => {
+  const handleEnterSellerSpace = (initialMode: 'login' | 'signup' = 'login') => {
     setSelectedProductId(null); // Close any open detail tabs
     if (loggedSeller) {
       setCurrentPerspective('seller');
     } else {
+      setSellerAuthInitialMode(initialMode);
       setCurrentPerspective('seller_auth');
     }
   };
@@ -405,6 +403,7 @@ export default function App() {
             onRegister={handleSellerRegister}
             onCancel={() => setCurrentPerspective('buyer')}
             logoConfig={logoConfig}
+            initialMode={sellerAuthInitialMode}
           />
         )}
 

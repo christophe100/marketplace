@@ -167,6 +167,20 @@
   ],
   "sellers": [
     {
+      "id": 11,
+      "storeName": "christian",
+      "ownerName": "klaus",
+      "email": "christianklaus@gmail.com",
+      "phone": "97467865",
+      "address": "lomé togo",
+      "rating": 5,
+      "isSuspended": false,
+      "status": "approved",
+      "joinDate": "21 juin 2026",
+      "salt": "3c95b88f29386e8581599b0687c5f91d",
+      "passwordHash": "bb99f48df94e9da30b7e4e939cffaa31673e14ef79bec7ae4c0126fe3fa8c199270cad72eaf4511c226c1d7cd348640e15c5dade1f74c070c919713d5296a253"
+    },
+    {
       "id": 10,
       "storeName": "Hermès Éphémère 8",
       "ownerName": "Christophe Gbenin",
@@ -318,6 +332,6 @@
     }
   ],
   "nextProductId": 101,
-  "nextSellerId": 11,
+  "nextSellerId": 12,
   "nextOrderId": 101
 }
