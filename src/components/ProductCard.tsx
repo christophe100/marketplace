@@ -79,7 +79,7 @@ export default function ProductCard({
           </div>
           <button
             onClick={() => onViewDetails(product.id)}
-            className="bg-[#FAF7F2] hover:bg-shopera-burgundy hover:text-white text-shopera-burgundy font-bold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded transition duration-150 cursor-pointer"
+            className="bg-[#FAF7F2] hover:bg-shopera-burgundy hover:text-white text-shopera-burgundy font-bold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-[20px] transition duration-150 cursor-pointer"
           >
             Voir l&apos;offre
           </button>

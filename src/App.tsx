@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import {
   INITIAL_PRODUCTS,
@@ -16,6 +17,7 @@ import {
 import BuyerPerspective from './components/BuyerPerspective';
 import SellerPerspective from './components/SellerPerspective';
 import SellerAuthPortal from './components/SellerAuthPortal';
+import AdminPerspective from './components/AdminPerspective';
 import { 
   getBackendProducts, 
   getBackendSellers, 
@@ -64,13 +66,13 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Current active view: 'buyer' (the public site) or 'seller' (the authenticated panel) or 'seller_auth' (the login/signup screen)
-  const [currentPerspective, setCurrentPerspective] = useState<'buyer' | 'seller' | 'seller_auth'>('buyer');
+  // Current active view: 'buyer' (the public site) or 'seller' (the authenticated panel) or 'seller_auth' (the login/signup screen) or 'admin' (the super-administrator panel)
+  const [currentPerspective, setCurrentPerspective] = useState<'buyer' | 'seller' | 'seller_auth' | 'admin'>('buyer');
   const [sellerAuthInitialMode, setSellerAuthInitialMode] = useState<'login' | 'signup'>('login');
 
   // Unified buyer navigation states
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [currentBuyerTab, setCurrentBuyerTab] = useState<'home' | 'shop' | 'favorites' | 'chat' | 'profile'>('home');
+  const [currentBuyerTab, setCurrentBuyerTab] = useState<'home' | 'shop' | 'favorites' | 'profile'>('home');
   const [buyerCategoryFilter, setBuyerCategoryFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -156,7 +158,7 @@ export default function App() {
   const handleAddToCart = (product: Product, quantity: number, color: string) => {
     setCart((prev) => {
       const existingIndex = prev.findIndex(
-        (item) => item.product.id === product.id && item.selectedColor === color
+        (item) => String(item.product.id) === String(product.id) && item.selectedColor === color
       );
       if (existingIndex > -1) {
         const next = [...prev];
@@ -172,7 +174,7 @@ export default function App() {
 
   const handleRemoveFromCart = (productId: string, color: string) => {
     setCart((prev) =>
-      prev.filter((item) => !(item.product.id === productId && item.selectedColor === color))
+      prev.filter((item) => !(String(item.product.id) === String(productId) && item.selectedColor === color))
     );
   };
 
@@ -183,7 +185,7 @@ export default function App() {
     }
     setCart((prev) => {
       const index = prev.findIndex(
-        (item) => item.product.id === productId && item.selectedColor === color
+        (item) => String(item.product.id) === String(productId) && item.selectedColor === color
       );
       if (index > -1) {
         const next = [...prev];
@@ -326,7 +328,11 @@ export default function App() {
   const handleEnterSellerSpace = (initialMode: 'login' | 'signup' = 'login') => {
     setSelectedProductId(null); // Close any open detail tabs
     if (loggedSeller) {
-      setCurrentPerspective('seller');
+      if (loggedSeller.id === 'admin') {
+        setCurrentPerspective('admin');
+      } else {
+        setCurrentPerspective('seller');
+      }
     } else {
       setSellerAuthInitialMode(initialMode);
       setCurrentPerspective('seller_auth');
@@ -335,7 +341,11 @@ export default function App() {
 
   const handleSellerLogin = (seller: SellerProfile) => {
     setLoggedSeller(seller);
-    setCurrentPerspective('seller');
+    if (seller.id === 'admin') {
+      setCurrentPerspective('admin');
+    } else {
+      setCurrentPerspective('seller');
+    }
   };
 
   const handleSellerRegister = (newSellerData: Omit<SellerProfile, 'id' | 'joinDate' | 'status'>) => {
@@ -358,9 +368,14 @@ export default function App() {
   };
 
   const handleSellerLogout = () => {
+    const wasAdmin = loggedSeller?.id === 'admin';
     setLoggedSeller(null);
     setCurrentPerspective('buyer');
-    alert("Vous avez bien été déconnecté de votre espace vendeur.");
+    if (wasAdmin) {
+      alert("Vous avez bien été déconnecté de l'espace d'administration suprême Assigame.");
+    } else {
+      alert("Vous avez bien été déconnecté de votre espace vendeur.");
+    }
   };
 
   return (
@@ -391,6 +406,7 @@ export default function App() {
             onSetSearchQuery={setSearchQuery}
             loggedSeller={loggedSeller}
             onEnterSellerSpace={handleEnterSellerSpace}
+            onLogout={handleSellerLogout}
             logoConfig={logoConfig}
             onUpdateLogoConfig={setLogoConfig}
           />
@@ -420,6 +436,20 @@ export default function App() {
             onLogout={handleSellerLogout}
             onBackToShop={() => setCurrentPerspective('buyer')}
             logoConfig={logoConfig}
+          />
+        )}
+
+        {currentPerspective === 'admin' && (
+          <AdminPerspective
+            products={products}
+            orders={orders}
+            sellers={sellers}
+            onUpdateSellers={setSellers}
+            onUpdateProducts={setProducts}
+            onUpdateOrders={setOrders}
+            logoConfig={logoConfig}
+            onUpdateLogoConfig={setLogoConfig}
+            onLogout={handleSellerLogout}
           />
         )}
       </div>

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Menu, Search, Heart, ShoppingBag } from 'lucide-react';
-import { LogoConfig, CartItem } from '../types';
+import { Menu, Search, Heart, User, ShoppingBag, LogOut } from 'lucide-react';
+import { LogoConfig, CartItem, SellerProfile } from '../types';
 import AssigameLogo from './AssigameLogo';
 
 // Let's import LOGO_ICONS or define it here
@@ -39,6 +39,8 @@ interface NavbarProps {
   setIsCartOpen: (val: boolean) => void;
   logoConfig?: LogoConfig;
   onEnterSellerSpace?: (initialMode?: 'login' | 'signup') => void;
+  loggedSeller?: SellerProfile | null;
+  onLogout?: () => void;
 }
 
 export default function Navbar({
@@ -55,6 +57,8 @@ export default function Navbar({
   setIsCartOpen,
   logoConfig,
   onEnterSellerSpace,
+  loggedSeller,
+  onLogout,
 }: NavbarProps) {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
@@ -105,14 +109,6 @@ export default function Navbar({
           >
             Favoris
           </button>
-          <button
-            onClick={() => { onChangeTab('chat'); onSelectProduct(null); }}
-            className={`hover:text-shopera-burgundy transition-all duration-150 py-1 cursor-pointer ${
-              currentTab === 'chat' ? 'text-shopera-burgundy border-b-2 border-shopera-burgundy font-bold' : 'text-shopera-gray'
-            }`}
-          >
-            Messages
-          </button>
         </div>
 
         {/* Search Inputs & Shopping Stats Panel */}
@@ -134,7 +130,7 @@ export default function Navbar({
           {/* Icons indicators */}
           <button
             onClick={() => onChangeTab('favorites')}
-            className="p-2 text-shopera-dark hover:text-shopera-burgundy rounded-full hover:bg-gray-50 relative cursor-pointer"
+            className="p-2 text-shopera-dark hover:text-shopera-burgundy rounded-full hover:bg-gray-50 relative cursor-pointer mr-1"
             title="Mes favoris"
           >
             <Heart className={`w-5 h-5 ${favorites.length > 0 ? 'fill-shopera-burgundy text-shopera-burgundy' : ''}`} />
@@ -145,33 +141,47 @@ export default function Navbar({
             )}
           </button>
 
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="p-2 text-shopera-dark hover:text-shopera-burgundy rounded-full hover:bg-gray-50 relative cursor-pointer"
-            title="Mon Panier"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            {cart.length > 0 && (
-              <span className="absolute top-0 right-0 bg-shopera-burgundy text-white font-mono text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center animated-pulse">
-                {cart.reduce((s, i) => s + i.quantity, 0)}
-              </span>
+          {/* Clean connected CTAs - replacing Cart */}
+          <div className="flex items-center gap-1.5 pl-2 border-l border-gray-150">
+            {loggedSeller ? (
+              <>
+                <button
+                  onClick={() => onEnterSellerSpace?.()}
+                  className={`inline-flex items-center justify-center text-white text-[11px] font-extrabold px-4 py-2.5 uppercase tracking-wider transition-all duration-150 rounded-[30px] shadow-xs cursor-pointer gap-1.5 ${
+                    loggedSeller.id === 'admin' 
+                      ? 'bg-amber-600 hover:bg-amber-700' 
+                      : 'bg-[#4A1118] hover:bg-[#5C161E]'
+                  }`}
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>{loggedSeller.id === 'admin' ? 'Espace Admin' : 'Mon Espace'}</span>
+                </button>
+                <button
+                  onClick={onLogout}
+                  className="hidden sm:inline-flex items-center justify-center border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 text-[11px] font-extrabold px-3 py-2.5 uppercase tracking-wider transition-all duration-150 rounded-[30px] cursor-pointer gap-1"
+                  title="Se déconnecter"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Quitter</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => onEnterSellerSpace?.('login')}
+                  className="inline-flex items-center justify-center bg-[#4A1118] hover:bg-[#5C161E] text-white text-[11px] font-extrabold px-4 py-2.5 uppercase tracking-wider transition-all duration-150 rounded-[30px] shadow-xs cursor-pointer gap-1.5"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>Se Connecter</span>
+                </button>
+                <button
+                  onClick={() => onEnterSellerSpace?.('signup')}
+                  className="hidden sm:inline-flex items-center justify-center border border-[#4A1118] text-[#4A1118] bg-white hover:bg-red-50/50 text-[11px] font-extrabold px-4 py-2.5 uppercase tracking-wider transition-all duration-150 rounded-[30px] cursor-pointer"
+                >
+                  Inscription
+                </button>
+              </>
             )}
-          </button>
-
-          {/* Seller Action Buttons */}
-          <div className="hidden md:flex items-center gap-2 pl-2 border-l border-gray-150">
-            <button
-              onClick={() => onEnterSellerSpace?.('login')}
-              className="inline-flex items-center justify-center bg-[#4A1118] hover:bg-[#5C161E] text-white text-[10px] font-extrabold px-4 py-2.5 uppercase tracking-wider transition-colors duration-150 rounded-[30px] shadow-xs cursor-pointer"
-            >
-              Se Connecter Vendeur
-            </button>
-            <button
-              onClick={() => onEnterSellerSpace?.('signup')}
-              className="inline-flex items-center justify-center border border-[#4A1118] text-[#4A1118] bg-white hover:bg-red-50/50 text-[10px] font-extrabold px-4 py-2 md:py-2.5 uppercase tracking-wider transition-colors duration-150 rounded-[30px] cursor-pointer"
-            >
-              Inscription Vendeur
-            </button>
           </div>
         </div>
       </div>
@@ -214,27 +224,45 @@ export default function Navbar({
           >
             Favoris ({favorites.length})
           </button>
-          <button
-            onClick={() => { onChangeTab('chat'); setIsMobileMenuOpen(false); }}
-            className={`text-left py-2 text-sm font-semibold cursor-pointer ${currentTab === 'chat' ? 'text-shopera-burgundy' : 'text-shopera-dark'}`}
-          >
-            Messages
-          </button>
           
           {/* Mobile Seller Buttons */}
           <div className="border-t border-gray-150 pt-3 mt-1 flex flex-col gap-2">
-            <button
-              onClick={() => { onEnterSellerSpace?.('login'); setIsMobileMenuOpen(false); }}
-              className="bg-[#4A1118] text-white text-xs font-bold py-2.5 px-4 uppercase tracking-wider text-center rounded-[30px] shadow-xs cursor-pointer"
-            >
-              Se Connecter Vendeur
-            </button>
-            <button
-              onClick={() => { onEnterSellerSpace?.('signup'); setIsMobileMenuOpen(false); }}
-              className="border border-[#4A1118] text-[#4A1118] bg-white text-xs font-bold py-2 px-4 uppercase tracking-wider text-center rounded-[30px] cursor-pointer"
-            >
-              Inscription Vendeur
-            </button>
+            {loggedSeller ? (
+              <>
+                <button
+                  onClick={() => { onEnterSellerSpace?.(); setIsMobileMenuOpen(false); }}
+                  className={`text-white text-xs font-bold py-2.5 px-4 uppercase tracking-wider text-center rounded-[30px] shadow-xs cursor-pointer flex items-center justify-center gap-1.5 ${
+                    loggedSeller.id === 'admin' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-[#4A1118]'
+                  }`}
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>{loggedSeller.id === 'admin' ? 'Espace Administration' : 'Mon Espace Vendeur'}</span>
+                </button>
+                <button
+                  onClick={() => { onLogout?.(); setIsMobileMenuOpen(false); }}
+                  className="border border-gray-300 text-gray-700 bg-white text-xs font-bold py-2 px-4 uppercase tracking-wider text-center rounded-[30px] cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Se déconnecter</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => { onEnterSellerSpace?.('login'); setIsMobileMenuOpen(false); }}
+                  className="bg-[#4A1118] text-white text-xs font-bold py-2.5 px-4 uppercase tracking-wider text-center rounded-[30px] shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>Se Connecter</span>
+                </button>
+                <button
+                  onClick={() => { onEnterSellerSpace?.('signup'); setIsMobileMenuOpen(false); }}
+                  className="border border-[#4A1118] text-[#4A1118] bg-white text-xs font-bold py-2 px-4 uppercase tracking-wider text-center rounded-[30px] cursor-pointer"
+                >
+                  Inscription Vendeur
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
