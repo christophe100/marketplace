@@ -209,11 +209,22 @@ export default function PublicHomepageView({
               </div>
             ) : (
               <form 
-                onSubmit={(e) => { 
+                onSubmit={async (e) => {
                   e.preventDefault(); 
-                  if (clubEmail.trim()) {
-                    setClubJoined(true);
-                  }
+                if (clubEmail.trim()) {
+
+  await fetch("http://localhost:3000/api/newsletter", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: clubEmail,
+    }),
+  });
+
+  setClubJoined(true);
+}
                 }} 
                 className="flex flex-col sm:flex-row gap-3"
               >

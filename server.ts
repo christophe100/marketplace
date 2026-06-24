@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import express from 'express';
 import path from 'path';
 import crypto from 'crypto';
@@ -8,7 +9,15 @@ import { INITIAL_PRODUCTS, INITIAL_SELLERS, INITIAL_ORDERS } from './src/types';
 
 const PORT = Number(process.env.PORT) || 3000;
 const STORE_PATH = path.join(process.cwd(), 'src', 'data-store.json');
-const JWT_SECRET = process.env.JWT_SECRET || 'shopera_luxury_marketplace_ultra_secure_jwt_secret_token_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 
+'shopera_luxury_marketplace_ultra_secure_jwt_secret_token_key_2026';
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "dapiphanie6002@gmail.com",        // ⚠️ remplace
+    pass: "pgev rwba arir beoi",          // ⚠️ mot de passe application Gmail
+  },
+});
 
 interface DbState {
   products: any[];
@@ -17,6 +26,14 @@ interface DbState {
   nextProductId: number;
   nextSellerId: number;
   nextOrderId: number;
+
+  userActivity: Record<
+    string,
+    {
+      categories: string[];
+      lastUpdate: string;
+    }
+  >;
 }
 
 let db: DbState;
@@ -109,17 +126,18 @@ function loadDb() {
       sellerId: sellerRawId
     };
   });
+db = {
+  products: mappedProducts,
+  sellers: mappedSellers,
+  orders: mappedOrders,
+  nextProductId: 100,
+  nextSellerId: 10,
+  nextOrderId: 100,
 
-  db = {
-    products: mappedProducts,
-    sellers: mappedSellers,
-    orders: mappedOrders,
-    nextProductId: 100,
-    nextSellerId: 10,
-    nextOrderId: 100
-  };
-  
-  saveDb();
+  userActivity: {}
+};
+
+saveDb();
 }
 
 function saveDb() {
@@ -149,6 +167,7 @@ function generateToken(sellerId: number, email: string, storeName: string): stri
 }
 
 function verifyToken(token: string): any {
+  
   const parts = token.split('.');
   if (parts.length !== 3) {
     throw new Error('Invalid token structure');
@@ -413,7 +432,63 @@ async function startServer() {
     saveDb();
     res.json({ message: 'Article retiré de la boutique avec succès.' });
   });
+  app.get('/api/products/:id/similar', (req, res) => {
+  const id = Number(req.params.id);
 
+  const product = db.products.find((p) => p.id === id);
+
+  if (!product) {
+    return res.status(404).json({ message: 'Produit introuvable' });
+  }
+
+  const similar = db.products
+    .filter((p) => {
+      if (p.id === product.id) return false;
+
+      const sameCategory = p.category === product.category;
+      const sameBrand = product.brand && p.brand === product.brand;
+
+      const priceRange =
+        Math.abs(p.price - product.price) <= product.price * 0.3;
+
+      return sameCategory || sameBrand || priceRange;
+    })
+    .sort((a, b) => {
+      let scoreA = 0;
+      let scoreB = 0;
+
+      if (a.category === product.category) scoreA += 2;
+      if (b.category === product.category) scoreB += 2;
+
+      if (product.brand && a.brand === product.brand) scoreA += 3;
+      if (product.brand && b.brand === product.brand) scoreB += 3;
+
+      return scoreB - scoreA;
+    })
+    .slice(0, 6);
+
+  res.json(similar);
+});
+app.post('/api/user-activity', (req, res) => {
+  const { email, categories } = req.body;
+
+  if (!email || !Array.isArray(categories)) {
+    return res.status(400).json({ message: "Données invalides" });
+  }
+
+  // ici on peut stocker en mémoire simple (version rapide)
+  // ou plus tard dans db.json
+  db.userActivity = db.userActivity || {};
+
+  db.userActivity[email] = {
+    categories,
+    lastUpdate: new Date()
+  };
+
+  saveDb();
+
+  return res.json({ success: true });
+});
   // --- SELLERS ---
   app.get('/api/sellers', (req, res) => {
     // Satisfies both spring-boot DTO requirements and React profiles perfectly
@@ -517,44 +592,48 @@ async function startServer() {
       token
     });
   });
+app.post('/api/newsletter', async (req, res) => {
+  try {
+    const { email } = req.body;
 
-  app.post('/api/sellers/login', (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Adresse email et mot de passe requis.' });
+    if (!email) {
+      return res.status(400).json({ message: 'Email requis' });
     }
 
-    const s = db.sellers.find((x) => x.email === email.trim().toLowerCase());
-    if (!s) {
-      return res.status(404).json({ message: 'Aucune boutique enregistrée avec cette adresse email.' });
-    }
+    await transporter.sendMail({
+      from: '"ASSIGAME" <dapiphanie6002@gmail.com>',
+      to: email,
+      subject: "Bienvenue dans le Club ASSIGAME ✨",
+      html: `
+        <div style="font-family: Arial; padding: 10px;">
+          <h2>Bienvenue dans le Club ASSIGAME ✨</h2>
 
-    if (s.isSuspended) {
-      return res.status(403).json({ message: 'Votre boutique exclusive a été suspendue temporairement de la plateforme.' });
-    }
+          <p>Merci de nous avoir rejoints 💖</p>
 
-    const matches = hashPassword(password, s.salt) === s.passwordHash;
-    if (!matches) {
-      return res.status(401).json({ message: 'Mot de passe incorrect. Veuillez réessayer.' });
-    }
+          <p>
+            🎁 Votre bon de réduction de <strong>10%</strong> est maintenant activé.
+          </p>
 
-    const token = generateToken(s.id, s.email, s.storeName);
+          <p>Vous recevrez bientôt :</p>
 
-    res.json({
-      id: s.id,
-      storeName: s.storeName,
-      ownerName: s.ownerName,
-      email: s.email,
-      phone: s.phone,
-      address: s.address,
-      joinDate: s.joinDate,
-      rating: s.rating,
-      isSuspended: s.isSuspended,
-      status: s.isSuspended ? 'rejected' : (s.status || 'approved'),
-      token
+          <ul>
+            <li>Offres exclusives</li>
+            <li>Nouveaux produits</li>
+            <li>Recommandations personnalisées</li>
+          </ul>
+
+          <p>À très bientôt sur ASSIGAME 🚀</p>
+        </div>
+      `
     });
-  });
 
+    return res.json({ success: true });
+
+  } catch (error) {
+    console.error("Newsletter error:", error);
+    return res.status(500).json({ success: false });
+  }
+});
   // --- ORDERS ---
   app.get('/api/orders', (req, res) => {
     const { sellerId, buyerEmail } = req.query;

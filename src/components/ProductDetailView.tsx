@@ -8,6 +8,7 @@ interface ProductDetailViewProps {
   onChangeTab: (tab: 'home' | 'shop' | 'favorites' | 'profile') => void;
   onAddToCart: (product: Product, quantity: number, color: string) => void;
   setIsCartOpen: (open: boolean) => void;
+  similarProducts: Product[];
   logoConfig?: LogoConfig;
 }
 
@@ -17,6 +18,7 @@ export default function ProductDetailView({
   onChangeTab,
   onAddToCart,
   setIsCartOpen,
+  similarProducts,
   logoConfig,
 }: ProductDetailViewProps) {
   const [detailColor, setDetailColor] = useState<string>('');
@@ -177,6 +179,36 @@ export default function ProductDetailView({
                   >
                     Ajouter au Panier
                   </button>
+ {/* PRODUITS SIMILAIRES */}
+{similarProducts && similarProducts.length > 0 && (
+  <div className="mt-6">
+    <h3 className="text-sm font-bold mb-2">Produits similaires</h3>
+
+    <div className="grid grid-cols-2 gap-2">
+      {similarProducts.map((p) => (
+        <div
+          key={p.id}
+          className="border rounded-lg p-2 cursor-pointer hover:shadow-md transition"
+          onClick={() => onSelectProduct(String(p.id))}
+        >
+          <img
+            src={p.imageUrl || 'https://via.placeholder.com/150'}
+            alt={p.name}
+            className="w-full h-20 object-cover rounded"
+          />
+
+          <p className="text-xs font-semibold mt-1 line-clamp-1">
+            {p.name}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            {Number(p.price).toLocaleString('fr-FR')} FCFA
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
                 </div>
               </div>
 

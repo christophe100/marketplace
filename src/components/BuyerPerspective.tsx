@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   ShoppingBag,
   Heart,
@@ -85,30 +85,86 @@ export default function BuyerPerspective({
   logoConfig,
 }: BuyerPerspectiveProps) {
   
+  
   // Local UI status state variables
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
+const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
 
-  // Checkout Sim Info
-  const [checkoutName, setCheckoutName] = useState('');
-  const [checkoutEmail, setCheckoutEmail] = useState('');
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+// Produits similaires
+const [similarProducts, setSimilarProducts] = useState<any[]>([]);
 
-  // Dynamic categories list incorporating custom ones published by sellers
-  const dynamicCategories = useMemo(() => {
-    const list = [...CATEGORIES];
-    products.forEach((p) => {
-      if (p.category && !list.includes(p.category)) {
-        list.push(p.category);
-      }
-    });
-    return list;
-  }, [products]);
+// Checkout Sim Info
+const [checkoutName, setCheckoutName] = useState('');
+const [checkoutEmail, setCheckoutEmail] = useState('');
+const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  // Active product details helper
-  const selectedProduct = useMemo(() => {
-    return products.find((p) => String(p.id) === String(selectedProductId) && p.status === 'active');
-  }, [products, selectedProductId]);
+// Récupération des produits similaires
+const fetchSimilar = async (id: number) => {
+  await new Promise((r) => setTimeout(r, 300));
+
+  const res = await fetch(
+    `http://localhost:3000/api/products/${id}/similar`
+  );
+
+  const data = await res.json();
+
+  setSimilarProducts(data);
+
+  return data;
+};
+
+// Historique des produits consultés
+const handleViewProduct = async (product: Product) => {
+  const history = JSON.parse(
+    localStorage.getItem("viewed_products") || "[]"
+  );
+
+  const updated = [product.category, ...history]
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .slice(0, 5);
+
+  localStorage.setItem(
+    "viewed_products",
+    JSON.stringify(updated)
+  );
+
+  await fetch("http://localhost:3000/api/user-activity", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: "user@test.com",
+      categories: updated,
+    }),
+  });
+};
+useEffect(() => {
+  if (selectedProductId) {
+    fetchSimilar(Number(selectedProductId));
+  }
+}, [selectedProductId]);
+
+const dynamicCategories = useMemo(() => {
+  const list = [...CATEGORIES];
+
+  products.forEach((p) => {
+    if (p.category && !list.includes(p.category)) {
+      list.push(p.category);
+    }
+  });
+
+  return list;
+}, [products]);
+
+// Active product details helper
+const selectedProduct = useMemo(() => {
+  return products.find(
+    (p) =>
+      String(p.id) === String(selectedProductId) &&
+      p.status === 'active'
+  );
+}, [products, selectedProductId]);
 
   // Unique list of products for the "Nouveautés & Coups de Cœur" section
   const spotlightProducts = useMemo(() => {
@@ -179,6 +235,7 @@ export default function BuyerPerspective({
           onChangeTab={onChangeTab}
           onAddToCart={onAddToCart}
           setIsCartOpen={setIsCartOpen}
+          similarProducts={similarProducts}
           logoConfig={logoConfig}
         />
       ) : (
