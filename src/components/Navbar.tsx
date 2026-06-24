@@ -172,13 +172,13 @@ export default function Navbar({
                   className="inline-flex items-center justify-center bg-[#4A1118] hover:bg-[#5C161E] text-white text-[11px] font-extrabold px-4 py-2.5 uppercase tracking-wider transition-all duration-150 rounded-[30px] shadow-xs cursor-pointer gap-1.5"
                 >
                   <User className="w-3.5 h-3.5" />
-                  <span>Se Connecter</span>
+                  <span>Connexion</span>
                 </button>
                 <button
                   onClick={() => onEnterSellerSpace?.('signup')}
                   className="hidden sm:inline-flex items-center justify-center border border-[#4A1118] text-[#4A1118] bg-white hover:bg-red-50/50 text-[11px] font-extrabold px-4 py-2.5 uppercase tracking-wider transition-all duration-150 rounded-[30px] cursor-pointer"
                 >
-                  Inscription
+                  S'inscrire
                 </button>
               </>
             )}

@@ -104,7 +104,7 @@ npm run dev
 L'application sera accessible sur :
 
 ```bash
-http://localhost:5173
+http://localhost:3000
 ```
 
 ---

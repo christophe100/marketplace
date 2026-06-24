@@ -6,7 +6,7 @@ import { createServer as createViteServer } from 'vite';
 import { INITIAL_PRODUCTS, INITIAL_SELLERS, INITIAL_ORDERS } from './src/types';
 
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const STORE_PATH = path.join(process.cwd(), 'src', 'data-store.json');
 const JWT_SECRET = process.env.JWT_SECRET || 'shopera_luxury_marketplace_ultra_secure_jwt_secret_token_key_2026';
 

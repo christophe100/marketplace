@@ -16,6 +16,17 @@ import {
 } from './types';
 import BuyerPerspective from './components/BuyerPerspective';
 import SellerPerspective from './components/SellerPerspective';
+function parseStoredState<T>(key: string, defaultValue: T): T {
+  const saved = localStorage.getItem(key);
+  if (!saved) return defaultValue;
+  try {
+    return JSON.parse(saved) as T;
+  } catch {
+    localStorage.removeItem(key);
+    return defaultValue;
+  }
+}
+
 import SellerAuthPortal from './components/SellerAuthPortal';
 import AdminPerspective from './components/AdminPerspective';
 import { 
